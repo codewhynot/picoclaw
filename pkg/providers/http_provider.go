@@ -24,15 +24,9 @@ type HTTPProvider struct {
 	apiKey     string
 	apiBase    string
 	httpClient *http.Client
-	model      string
-	thinking   *bool
 }
 
 func NewHTTPProvider(apiKey, apiBase, proxy string) *HTTPProvider {
-	return NewHTTPProviderWithOptions(apiKey, apiBase, proxy, "", nil)
-}
-
-func NewHTTPProviderWithOptions(apiKey, apiBase, proxy, model string, thinking *bool) *HTTPProvider {
 	client := &http.Client{
 		Timeout: 0,
 	}
@@ -50,8 +44,6 @@ func NewHTTPProviderWithOptions(apiKey, apiBase, proxy, model string, thinking *
 		apiKey:     apiKey,
 		apiBase:    strings.TrimRight(apiBase, "/"),
 		httpClient: client,
-		model:      model,
-		thinking:   thinking,
 	}
 }
 
@@ -71,7 +63,12 @@ func (p *HTTPProvider) Chat(ctx context.Context, messages []Message, tools []Too
 	// Determine endpoint based on provider
 	endpoint := "/chat/completions"
 	lowerBase := strings.ToLower(p.apiBase)
-	if strings.Contains(lowerBase, "minimax.io") && !strings.Contains(lowerBase, "anthropic") {
+	if strings.Contains(lowerBase, "minimax.io") {
+		// MiniMax native API: use /v1/text/chatcompletion_v2
+		// Strip /v1 from apiBase if present to avoid /v1/v1
+		if strings.HasSuffix(p.apiBase, "/v1") {
+			p.apiBase = strings.TrimSuffix(p.apiBase, "/v1")
+		}
 		endpoint = "/v1/text/chatcompletion_v2"
 	}
 
@@ -104,12 +101,8 @@ func (p *HTTPProvider) Chat(ctx context.Context, messages []Message, tools []Too
 		}
 	}
 
-	// Handle thinking parameter for MiniMax
-	if p.thinking != nil {
-		requestBody["thinking"] = *p.thinking
-	}
-	if thinking, ok := options["thinking"].(bool); ok {
-		requestBody["thinking"] = thinking
+	if topP, ok := options["top_p"].(float64); ok && topP > 0 {
+		requestBody["top_p"] = topP
 	}
 
 	jsonData, err := json.Marshal(requestBody)
@@ -474,11 +467,5 @@ func CreateProvider(cfg *config.Config) (LLMProvider, error) {
 		return nil, fmt.Errorf("no API base configured for provider (model: %s)", model)
 	}
 
-	// Get thinking config for minimax
-	var thinking *bool
-	if providerName == "minimax" && cfg.Providers.MiniMax.Thinking != nil {
-		thinking = cfg.Providers.MiniMax.Thinking
-	}
-
-	return NewHTTPProviderWithOptions(apiKey, apiBase, proxy, model, thinking), nil
+	return NewHTTPProvider(apiKey, apiBase, proxy), nil
 }

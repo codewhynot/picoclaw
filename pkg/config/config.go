@@ -65,6 +65,7 @@ type AgentDefaults struct {
 	Model               string  `json:"model" env:"PICOCLAW_AGENTS_DEFAULTS_MODEL"`
 	MaxTokens           int     `json:"max_tokens" env:"PICOCLAW_AGENTS_DEFAULTS_MAX_TOKENS"`
 	Temperature         float64 `json:"temperature" env:"PICOCLAW_AGENTS_DEFAULTS_TEMPERATURE"`
+	TopP                float64 `json:"top_p" env:"PICOCLAW_AGENTS_DEFAULTS_TOP_P"`
 	MaxToolIterations   int     `json:"max_tool_iterations" env:"PICOCLAW_AGENTS_DEFAULTS_MAX_TOOL_ITERATIONS"`
 }
 
@@ -177,7 +178,6 @@ type ProviderConfig struct {
 	APIBase    string `json:"api_base" env:"PICOCLAW_PROVIDERS_{{.Name}}_API_BASE"`
 	Proxy      string `json:"proxy,omitempty" env:"PICOCLAW_PROVIDERS_{{.Name}}_PROXY"`
 	AuthMethod string `json:"auth_method,omitempty" env:"PICOCLAW_PROVIDERS_{{.Name}}_AUTH_METHOD"`
-	Thinking   *bool  `json:"thinking,omitempty" env:"PICOCLAW_PROVIDERS_{{.Name}}_THINKING"`
 }
 
 type GatewayConfig struct {
@@ -215,6 +215,7 @@ func DefaultConfig() *Config {
 				Model:               "glm-4.7",
 				MaxTokens:           8192,
 				Temperature:         0.7,
+				TopP:                0.95,
 				MaxToolIterations:   20,
 			},
 		},
