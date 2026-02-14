@@ -162,6 +162,8 @@ type ProvidersConfig struct {
 	OpenRouter   ProviderConfig `json:"openrouter"`
 	Groq         ProviderConfig `json:"groq"`
 	Zhipu        ProviderConfig `json:"zhipu"`
+	Zai          ProviderConfig `json:"zai"`
+	MiniMax      ProviderConfig `json:"minimax"`
 	VLLM         ProviderConfig `json:"vllm"`
 	Gemini       ProviderConfig `json:"gemini"`
 	Nvidia       ProviderConfig `json:"nvidia"`
@@ -279,6 +281,8 @@ func DefaultConfig() *Config {
 			OpenRouter:   ProviderConfig{},
 			Groq:         ProviderConfig{},
 			Zhipu:        ProviderConfig{},
+			Zai:          ProviderConfig{},
+			MiniMax:      ProviderConfig{},
 			VLLM:         ProviderConfig{},
 			Gemini:       ProviderConfig{},
 			Nvidia:       ProviderConfig{},
@@ -375,6 +379,12 @@ func (c *Config) GetAPIKey() string {
 	}
 	if c.Providers.Zhipu.APIKey != "" {
 		return c.Providers.Zhipu.APIKey
+	}
+	if c.Providers.Zai.APIKey != "" {
+		return c.Providers.Zai.APIKey
+	}
+	if c.Providers.MiniMax.APIKey != "" {
+		return c.Providers.MiniMax.APIKey
 	}
 	if c.Providers.Groq.APIKey != "" {
 		return c.Providers.Groq.APIKey

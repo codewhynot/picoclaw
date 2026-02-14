@@ -55,7 +55,7 @@ func (p *HTTPProvider) Chat(ctx context.Context, messages []Message, tools []Too
 	// Strip provider prefix from model name (e.g., moonshot/kimi-k2.5 -> kimi-k2.5)
 	if idx := strings.Index(model, "/"); idx != -1 {
 		prefix := model[:idx]
-		if prefix == "moonshot" || prefix == "nvidia" {
+		if prefix == "moonshot" || prefix == "nvidia" || prefix == "zai" || prefix == "minimax" {
 			model = model[idx+1:]
 		}
 	}
@@ -314,6 +314,22 @@ func CreateProvider(cfg *config.Config) (LLMProvider, error) {
 					model = "deepseek-chat"
 				}
 			}
+		case "zai", "z.ai":
+			if cfg.Providers.Zai.APIKey != "" {
+				apiKey = cfg.Providers.Zai.APIKey
+				apiBase = cfg.Providers.Zai.APIBase
+				if apiBase == "" {
+					apiBase = "https://api.z.ai/api/paas/v4"
+				}
+			}
+		case "minimax":
+			if cfg.Providers.MiniMax.APIKey != "" {
+				apiKey = cfg.Providers.MiniMax.APIKey
+				apiBase = cfg.Providers.MiniMax.APIBase
+				if apiBase == "" {
+					apiBase = "https://api.minimax.io/v1"
+				}
+			}
 		}
 	}
 
@@ -389,6 +405,22 @@ func CreateProvider(cfg *config.Config) (LLMProvider, error) {
 			proxy = cfg.Providers.Nvidia.Proxy
 			if apiBase == "" {
 				apiBase = "https://integrate.api.nvidia.com/v1"
+			}
+
+		case (strings.HasPrefix(lowerModel, "glm-") || strings.HasPrefix(model, "zai/")) && cfg.Providers.Zai.APIKey != "":
+			apiKey = cfg.Providers.Zai.APIKey
+			apiBase = cfg.Providers.Zai.APIBase
+			proxy = cfg.Providers.Zai.Proxy
+			if apiBase == "" {
+				apiBase = "https://api.z.ai/api/paas/v4"
+			}
+
+		case (strings.Contains(lowerModel, "minimax") || strings.HasPrefix(lowerModel, "minimax-") || strings.HasPrefix(model, "minimax/")) && cfg.Providers.MiniMax.APIKey != "":
+			apiKey = cfg.Providers.MiniMax.APIKey
+			apiBase = cfg.Providers.MiniMax.APIBase
+			proxy = cfg.Providers.MiniMax.Proxy
+			if apiBase == "" {
+				apiBase = "https://api.minimax.io/v1"
 			}
 
 		case cfg.Providers.VLLM.APIBase != "":

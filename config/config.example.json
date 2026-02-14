@@ -83,6 +83,14 @@
       "api_key": "YOUR_ZHIPU_API_KEY",
       "api_base": ""
     },
+    "zai": {
+      "api_key": "",
+      "api_base": ""
+    },
+    "minimax": {
+      "api_key": "",
+      "api_base": ""
+    },
     "gemini": {
       "api_key": "",
       "api_base": ""
