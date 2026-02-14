@@ -35,6 +35,8 @@ type AgentLoop struct {
 	model          string
 	contextWindow  int // Maximum context window size in tokens
 	maxIterations  int
+	maxTokens      int
+	temperature    float64
 	sessions       *session.SessionManager
 	state          *state.Manager
 	contextBuilder *ContextBuilder
@@ -138,8 +140,10 @@ func NewAgentLoop(cfg *config.Config, msgBus *bus.MessageBus, provider providers
 		provider:       provider,
 		workspace:      workspace,
 		model:          cfg.Agents.Defaults.Model,
-		contextWindow:  cfg.Agents.Defaults.MaxTokens, // Restore context window for summarization
+		contextWindow:  cfg.Agents.Defaults.MaxTokens,
 		maxIterations:  cfg.Agents.Defaults.MaxToolIterations,
+		maxTokens:      cfg.Agents.Defaults.MaxTokens,
+		temperature:    cfg.Agents.Defaults.Temperature,
 		sessions:       sessionsManager,
 		state:          stateManager,
 		contextBuilder: contextBuilder,
@@ -446,8 +450,8 @@ func (al *AgentLoop) runLLMIteration(ctx context.Context, messages []providers.M
 
 		// Call LLM
 		response, err := al.provider.Chat(ctx, messages, providerToolDefs, al.model, map[string]interface{}{
-			"max_tokens":  8192,
-			"temperature": 0.7,
+			"max_tokens":  al.maxTokens,
+			"temperature": al.temperature,
 		})
 
 		if err != nil {

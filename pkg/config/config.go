@@ -177,6 +177,7 @@ type ProviderConfig struct {
 	APIBase    string `json:"api_base" env:"PICOCLAW_PROVIDERS_{{.Name}}_API_BASE"`
 	Proxy      string `json:"proxy,omitempty" env:"PICOCLAW_PROVIDERS_{{.Name}}_PROXY"`
 	AuthMethod string `json:"auth_method,omitempty" env:"PICOCLAW_PROVIDERS_{{.Name}}_AUTH_METHOD"`
+	Thinking   *bool  `json:"thinking,omitempty" env:"PICOCLAW_PROVIDERS_{{.Name}}_THINKING"`
 }
 
 type GatewayConfig struct {

@@ -225,7 +225,7 @@ picoclaw onboard
 
 **3. Get API Keys**
 
-- **LLM Provider**: [OpenRouter](https://openrouter.ai/keys) · [Zhipu](https://open.bigmodel.cn/usercenter/proj-mgmt/apikeys) · [Anthropic](https://console.anthropic.com) · [OpenAI](https://platform.openai.com) · [Gemini](https://aistudio.google.com/api-keys)
+- **LLM Provider**: [OpenRouter](https://openrouter.ai/keys) · [Zhipu](https://open.bigmodel.cn/usercenter/proj-mgmt/apikeys) · [Anthropic](https://console.anthropic.com) · [OpenAI](https://platform.openai.com) · [Gemini](https://aistudio.google.com/api-keys) · [Z.ai](https://z.ai/model-api) · [MiniMax](https://platform.minimax.io)
 - **Web Search** (optional): [Brave Search](https://brave.com/search/api) - Free tier available (2000 requests/month)
 
 > **Note**: See `config.example.json` for a complete configuration template.
@@ -656,6 +656,8 @@ The subagent has access to tools (message, web_search, etc.) and can communicate
 | -------------------------- | --------------------------------------- | ------------------------------------------------------ |
 | `gemini`                   | LLM (Gemini direct)                     | [aistudio.google.com](https://aistudio.google.com)     |
 | `zhipu`                    | LLM (Zhipu direct)                      | [bigmodel.cn](bigmodel.cn)                             |
+| `zai`                      | LLM (Z.ai / GLM models)                 | [z.ai/model-api](https://z.ai/model-api)               |
+| `minimax`                  | LLM (MiniMax M2.5, M2.1 models)         | [platform.minimax.io](https://platform.minimax.io)      |
 | `openrouter(To be tested)` | LLM (recommended, access to all models) | [openrouter.ai](https://openrouter.ai)                 |
 | `anthropic(To be tested)`  | LLM (Claude direct)                     | [console.anthropic.com](https://console.anthropic.com) |
 | `openai(To be tested)`     | LLM (GPT direct)                        | [platform.openai.com](https://platform.openai.com)     |
@@ -690,6 +692,100 @@ The subagent has access to tools (message, web_search, etc.) and can communicate
   }
 }
 ```
+
+**3. Run**
+
+```bash
+picoclaw agent -m "Hello"
+```
+
+</details>
+
+<details>
+<summary><b>Z.ai (GLM Models)</b></summary>
+
+**1. Get API key**
+
+- Register at [z.ai/model-api](https://z.ai/model-api)
+- Get your API key from [API Keys](https://z.ai/manage-apikey/apikey-list)
+- For Coding Plan: use endpoint `https://api.z.ai/api/coding/paas/v4`
+
+**2. Configure**
+
+```json
+{
+  "agents": {
+    "defaults": {
+      "workspace": "~/.picoclaw/workspace",
+      "provider": "zai",
+      "model": "glm-5",
+      "max_tokens": 8192,
+      "temperature": 0.7
+    }
+  },
+  "providers": {
+    "zai": {
+      "api_key": "Your Z.ai API Key",
+      "api_base": "https://api.z.ai/api/coding/paas/v4"
+    }
+  }
+}
+```
+
+**Available models:**
+- `glm-5` - Latest flagship model
+- `glm-4.7` - Previous version
+- `glm-4` - Stable version
+
+**3. Run**
+
+```bash
+picoclaw agent -m "Hello"
+```
+
+</details>
+
+<details>
+<summary><b>MiniMax</b></summary>
+
+**1. Get API key**
+
+- Register at [platform.minimax.io](https://platform.minimax.io)
+- Get your API key from [API Keys](https://platform.minimax.io/user-center/basic-information/interface-key)
+- Supports both Pay-as-you-go and Coding Plan
+
+**2. Configure**
+
+```json
+{
+  "agents": {
+    "defaults": {
+      "workspace": "~/.picoclaw/workspace",
+      "provider": "minimax",
+      "model": "MiniMax-M2.5",
+      "max_tokens": 8192,
+      "temperature": 0.7
+    }
+  },
+  "providers": {
+    "minimax": {
+      "api_key": "Your MiniMax API Key",
+      "api_base": "https://api.minimax.io/v1",
+      "thinking": true
+    }
+  }
+}
+```
+
+**Available models:**
+- `MiniMax-M2.5` - Peak performance, fastest efficiency
+- `MiniMax-M2.5-highspeed` - Same performance, faster output (~100 tps)
+- `MiniMax-M2.1` - Powerful multilingual programming
+- `MiniMax-M2.1-highspeed` - Fast version (~100 tps)
+- `MiniMax-M2` - Agentic capabilities
+
+**Options:**
+- `thinking` (boolean): Enable/disable thinking mode (default: true for supported models)
 
 **3. Run**
 

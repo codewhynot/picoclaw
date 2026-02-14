@@ -24,9 +24,15 @@ type HTTPProvider struct {
 	apiKey     string
 	apiBase    string
 	httpClient *http.Client
+	model      string
+	thinking   *bool
 }
 
 func NewHTTPProvider(apiKey, apiBase, proxy string) *HTTPProvider {
+	return NewHTTPProviderWithOptions(apiKey, apiBase, proxy, "", nil)
+}
+
+func NewHTTPProviderWithOptions(apiKey, apiBase, proxy, model string, thinking *bool) *HTTPProvider {
 	client := &http.Client{
 		Timeout: 0,
 	}
@@ -44,6 +50,8 @@ func NewHTTPProvider(apiKey, apiBase, proxy string) *HTTPProvider {
 		apiKey:     apiKey,
 		apiBase:    strings.TrimRight(apiBase, "/"),
 		httpClient: client,
+		model:      model,
+		thinking:   thinking,
 	}
 }
 
@@ -60,6 +68,13 @@ func (p *HTTPProvider) Chat(ctx context.Context, messages []Message, tools []Too
 		}
 	}
 
+	// Determine endpoint based on provider
+	endpoint := "/chat/completions"
+	lowerBase := strings.ToLower(p.apiBase)
+	if strings.Contains(lowerBase, "minimax.io") && !strings.Contains(lowerBase, "anthropic") {
+		endpoint = "/v1/text/chatcompletion_v2"
+	}
+
 	requestBody := map[string]interface{}{
 		"model":    model,
 		"messages": messages,
@@ -72,7 +87,7 @@ func (p *HTTPProvider) Chat(ctx context.Context, messages []Message, tools []Too
 
 	if maxTokens, ok := options["max_tokens"].(int); ok {
 		lowerModel := strings.ToLower(model)
-		if strings.Contains(lowerModel, "glm") || strings.Contains(lowerModel, "o1") {
+		if strings.Contains(lowerModel, "glm") || strings.Contains(lowerModel, "o1") || strings.Contains(lowerModel, "minimax") {
 			requestBody["max_completion_tokens"] = maxTokens
 		} else {
 			requestBody["max_tokens"] = maxTokens
@@ -89,12 +104,20 @@ func (p *HTTPProvider) Chat(ctx context.Context, messages []Message, tools []Too
 		}
 	}
 
+	// Handle thinking parameter for MiniMax
+	if p.thinking != nil {
+		requestBody["thinking"] = *p.thinking
+	}
+	if thinking, ok := options["thinking"].(bool); ok {
+		requestBody["thinking"] = thinking
+	}
+
 	jsonData, err := json.Marshal(requestBody)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, "POST", p.apiBase+"/chat/completions", bytes.NewReader(jsonData))
+	req, err := http.NewRequestWithContext(ctx, "POST", p.apiBase+endpoint, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
@@ -451,5 +474,11 @@ func CreateProvider(cfg *config.Config) (LLMProvider, error) {
 		return nil, fmt.Errorf("no API base configured for provider (model: %s)", model)
 	}
 
-	return NewHTTPProvider(apiKey, apiBase, proxy), nil
+	// Get thinking config for minimax
+	var thinking *bool
+	if providerName == "minimax" && cfg.Providers.MiniMax.Thinking != nil {
+		thinking = cfg.Providers.MiniMax.Thinking
+	}
+
+	return NewHTTPProviderWithOptions(apiKey, apiBase, proxy, model, thinking), nil
 }

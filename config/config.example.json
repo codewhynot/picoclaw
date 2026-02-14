@@ -89,7 +89,8 @@
     },
     "minimax": {
       "api_key": "",
-      "api_base": ""
+      "api_base": "",
+      "thinking": true
     },
     "gemini": {
       "api_key": "",
