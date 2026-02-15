@@ -424,7 +424,7 @@ func markdownToTelegramHTML(text string) string {
 
 	text = regexp.MustCompile(`^>\s*(.*)$`).ReplaceAllString(text, "$1")
 
-	text = escapeHTML(text)
+	text = strings.ReplaceAll(text, "&", "&amp;")
 
 	text = regexp.MustCompile(`\[([^\]]+)\]\(([^)]+)\)`).ReplaceAllString(text, `<a href="$2">$1</a>`)
 
@@ -508,7 +508,5 @@ func extractInlineCodes(text string) inlineCodeMatch {
 
 func escapeHTML(text string) string {
 	text = strings.ReplaceAll(text, "&", "&amp;")
-	text = strings.ReplaceAll(text, "<", "&lt;")
-	text = strings.ReplaceAll(text, ">", "&gt;")
 	return text
 }
