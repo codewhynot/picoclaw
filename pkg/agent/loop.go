@@ -37,7 +37,6 @@ type AgentLoop struct {
 	maxIterations  int
 	maxTokens      int
 	temperature    float64
-	topP           float64
 	sessions       *session.SessionManager
 	state          *state.Manager
 	contextBuilder *ContextBuilder
@@ -145,7 +144,6 @@ func NewAgentLoop(cfg *config.Config, msgBus *bus.MessageBus, provider providers
 		maxIterations:  cfg.Agents.Defaults.MaxToolIterations,
 		maxTokens:      cfg.Agents.Defaults.MaxTokens,
 		temperature:    cfg.Agents.Defaults.Temperature,
-		topP:           cfg.Agents.Defaults.TopP,
 		sessions:       sessionsManager,
 		state:          stateManager,
 		contextBuilder: contextBuilder,
@@ -454,7 +452,6 @@ func (al *AgentLoop) runLLMIteration(ctx context.Context, messages []providers.M
 		response, err := al.provider.Chat(ctx, messages, providerToolDefs, al.model, map[string]interface{}{
 			"max_tokens":  al.maxTokens,
 			"temperature": al.temperature,
-			"top_p":       al.topP,
 		})
 
 		if err != nil {

@@ -764,14 +764,14 @@ picoclaw agent -m "Hello"
       "provider": "minimax",
       "model": "MiniMax-M2.5",
       "max_tokens": 8192,
-      "temperature": 1.0,
-      "top_p": 0.95
+      "temperature": 0.7
     }
   },
   "providers": {
     "minimax": {
       "api_key": "Your MiniMax API Key",
-      "api_base": "https://api.minimax.io/v1"
+      "api_base": "https://api.minimax.io/v1",
+      "thinking": true
     }
   }
 }
@@ -783,6 +783,9 @@ picoclaw agent -m "Hello"
 - `MiniMax-M2.1` - Powerful multilingual programming
 - `MiniMax-M2.1-highspeed` - Fast version (~100 tps)
 - `MiniMax-M2` - Agentic capabilities
+
+**Options:**
+- `thinking` (boolean): Enable/disable thinking mode (default: true for supported models)
 
 **3. Run**
 

@@ -6,7 +6,6 @@
       "model": "glm-4.7",
       "max_tokens": 8192,
       "temperature": 0.7,
-      "top_p": 0.95,
       "max_tool_iterations": 20
     }
   },
@@ -90,7 +89,8 @@
     },
     "minimax": {
       "api_key": "",
-      "api_base": ""
+      "api_base": "",
+      "thinking": true
     },
     "gemini": {
       "api_key": "",
